@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.GushicishipinCollectionDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.gushicishipin_id as gushicishipinId
+        ,a.yonghu_id as yonghuId
+        ,a.gushicishipin_collection_types as gushicishipinCollectionTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.GushicishipinCollectionView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,gushicishipin.gushicishipin_name as gushicishipinName
+        ,gushicishipin.gushicishipin_types as gushicishipinTypes
+        ,gushicishipin.gushicishipin_photo as gushicishipinPhoto
+        ,gushicishipin.gushicishipin_video as gushicishipinVideo
+        ,gushicishipin.gushicishipin_file as gushicishipinFile
+        ,gushicishipin.gushicishipin_date as gushicishipinDate
+        ,gushicishipin.zan_number as zanNumber
+        ,gushicishipin.cai_number as caiNumber
+        ,gushicishipin.gushicishipin_status_types as gushicishipinStatusTypes
+        ,gushicishipin.gushicishipin_zuozhe as gushicishipinZuozhe
+        ,gushicishipin.gushicishipin_text as gushicishipinText
+        ,gushicishipin.gushicishipin_content as gushicishipinContent
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.new_money as newMoney
+        ,yonghu.huanyuan_types as huanyuanTypes
+        ,yonghu.huiyuandaoqi_time as huiyuandaoqiTime
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM gushicishipin_collection  a
+        left JOIN gushicishipin gushicishipin ON a.gushicishipin_id = gushicishipin.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.gushicishipinId != null and params.gushicishipinId != ''">
+                and (
+                    a.gushicishipin_id = #{params.gushicishipinId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.gushicishipinCollectionTypes != null and params.gushicishipinCollectionTypes != ''">
+                and a.gushicishipin_collection_types = #{params.gushicishipinCollectionTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断古诗词视频的id不为空 -->
+            <if test=" params.gushicishipinIdNotNull != '' and params.gushicishipinIdNotNull != null and params.gushicishipinIdNotNull != 'null' ">
+                and a.gushicishipin_id IS NOT NULL
+            </if>
+            <if test=" params.gushicishipinName != '' and params.gushicishipinName != null and params.gushicishipinName != 'null' ">
+                and gushicishipin.gushicishipin_name like CONCAT('%',#{params.gushicishipinName},'%')
+            </if>
+            <if test="params.gushicishipinTypes != null  and params.gushicishipinTypes != ''">
+                and gushicishipin.gushicishipin_types = #{params.gushicishipinTypes}
+            </if>
+
+            <if test=" params.gushicishipinVideo != '' and params.gushicishipinVideo != null and params.gushicishipinVideo != 'null' ">
+                and gushicishipin.gushicishipin_video like CONCAT('%',#{params.gushicishipinVideo},'%')
+            </if>
+            <if test=" params.gushicishipinDate != '' and params.gushicishipinDate != null and params.gushicishipinDate != 'null' ">
+                and gushicishipin.gushicishipin_date like CONCAT('%',#{params.gushicishipinDate},'%')
+            </if>
+            <if test="params.zanNumberStart != null  and params.zanNumberStart != '' ">
+                <![CDATA[  and gushicishipin.zan_number >= #{params.zanNumberStart}   ]]>
+            </if>
+            <if test="params.zanNumberEnd != null  and params.zanNumberEnd != '' ">
+                <![CDATA[  and gushicishipin.zan_number <= #{params.zanNumberEnd}   ]]>
+            </if>
+            <if test="params.zanNumber != null  and params.zanNumber != '' ">
+                and gushicishipin.zan_number = #{params.zanNumber}
+            </if>
+            <if test="params.caiNumberStart != null  and params.caiNumberStart != '' ">
+                <![CDATA[  and gushicishipin.cai_number >= #{params.caiNumberStart}   ]]>
+            </if>
+            <if test="params.caiNumberEnd != null  and params.caiNumberEnd != '' ">
+                <![CDATA[  and gushicishipin.cai_number <= #{params.caiNumberEnd}   ]]>
+            </if>
+            <if test="params.caiNumber != null  and params.caiNumber != '' ">
+                and gushicishipin.cai_number = #{params.caiNumber}
+            </if>
+            <if test="params.gushicishipinStatusTypesStart != null ">
+                <![CDATA[  and gushicishipin.gushicishipin_status_types >= #{params.gushicishipinStatusTypesStart}   ]]>
+            </if>
+            <if test="params.gushicishipinStatusTypesEnd != null ">
+                <![CDATA[  and gushicishipin.gushicishipin_status_types <= #{params.gushicishipinStatusTypesEnd}   ]]>
+            </if>
+            <if test=" params.gushicishipinZuozhe != '' and params.gushicishipinZuozhe != null and params.gushicishipinZuozhe != 'null' ">
+                and gushicishipin.gushicishipin_zuozhe like CONCAT('%',#{params.gushicishipinZuozhe},'%')
+            </if>
+            <if test=" params.gushicishipinText != '' and params.gushicishipinText != null and params.gushicishipinText != 'null' ">
+                and gushicishipin.gushicishipin_text like CONCAT('%',#{params.gushicishipinText},'%')
+            </if>
+            <if test=" params.gushicishipinContent != '' and params.gushicishipinContent != null and params.gushicishipinContent != 'null' ">
+                and gushicishipin.gushicishipin_content like CONCAT('%',#{params.gushicishipinContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(gushicishipin.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(gushicishipin.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test="params.huanyuanTypes != null  and params.huanyuanTypes != ''">
+                and yonghu.huanyuan_types = #{params.huanyuanTypes}
+            </if>
+
+            <if test=" params.huiyuandaoqiTimeStart != '' and params.huiyuandaoqiTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yonghu.huiyuandaoqi_time) >= UNIX_TIMESTAMP(#{params.huiyuandaoqiTimeStart}) ]]>
+            </if>
+            <if test=" params.huiyuandaoqiTimeEnd != '' and params.huiyuandaoqiTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yonghu.huiyuandaoqi_time) <= UNIX_TIMESTAMP(#{params.huiyuandaoqiTimeEnd}) ]]>
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
